@@ -8,7 +8,7 @@ using RestSharp;
 
 namespace Restcoration
 {
-    public class RestClientFactory
+    public class RestClientFactory : IRestClientFactory
     {
         private IRestClient _client;
         public RestClientFactory(string baseUrl)
