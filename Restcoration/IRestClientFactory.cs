@@ -27,15 +27,21 @@ namespace Restcoration
         /// <typeparam name="T">Expected response type</typeparam>
         /// <typeparam name="T2">Request data type</typeparam>
         /// <param name="requestData">Request data</param>
+        /// <param name="cookies">Cookies for request</param>
+        /// <param name="parameters">Parameters for request</param>
+        /// <param name="headers">Headers for request</param>
         /// <returns>Response data, InvalidCastException or ArgumentException</returns>
-        T Get<T, T2>(T2 requestData) where T : new();
+        T Get<T, T2>(T2 requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null) where T : new();
 
         /// <summary>
         /// Attempts to request data from resource, boxing it as object.
         /// </summary>
         /// <typeparam name="T">Request data type</typeparam>
         /// <param name="requestData">Request data</param>
+        /// <param name="cookies">Extra cookies for request</param>
+        /// <param name="parameters">Parameters for request</param>
+        /// <param name="headers">Headers for request</param>
         /// <returns>Response data, MissingFieldException or ArgumentException</returns>
-        object Get<T>(T requestData) where T : new();
+        object Get<T>(T requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null) where T : new();
     }
 }
