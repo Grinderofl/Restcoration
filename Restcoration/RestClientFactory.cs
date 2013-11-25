@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json;
 using RestSharp;
+using RestSharp.Extensions;
 
 namespace Restcoration
 {
@@ -14,6 +15,7 @@ namespace Restcoration
         public RestClientFactory(string baseUrl)
         {
             _client = new RestClient();
+            RequestFormat = DataFormat.Json;
             BaseUrl = baseUrl;
         }
 
@@ -52,7 +54,14 @@ namespace Restcoration
             set { _client.BaseUrl = value; }
         }
 
+        /// <summary>
+        /// Request format
+        /// </summary>
         public DataFormat RequestFormat { get; set; }
+
+        /// <summary>
+        /// Default root element
+        /// </summary>
         public string RootElement { get; set; }
         public string DateFormat { get; set; }
         public ICredentials Credentials { get; set; }
@@ -118,6 +127,9 @@ namespace Restcoration
             Dictionary<string, object> parameters, Dictionary<string, string> headers)
         {
             var request = new RestRequest(attribute.Resource, attribute.Method);
+            request.JsonSerializer = new JsonSerializer();
+            request.RequestFormat = RequestFormat;
+            request.RootElement = RootElement;
             request.AddBody(requestData);
             if (cookies != null)
                 foreach (var cookie in cookies)
@@ -146,8 +158,7 @@ namespace Restcoration
         private static Type GetPropertyValue(RestAttribute attribute, HttpStatusCode code)
         {
             var prop = attribute.GetType().GetProperty(code.ToString());
-            var value = prop == null ? null : prop.GetValue(attribute, null);
-            return value == null ? null : value.GetType();
+            return prop.GetValue(attribute, null) as Type;
         }
     }
 }
