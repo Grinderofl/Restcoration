@@ -38,3 +38,14 @@ var response = factory.Get<HttpBinIpSuccessResponse, HttpBinIpRequest>(new HttpB
 var response = factory.Get(new HttpBinIpRequest());
 Assert.That(response, Is.TypeOf<HttpBinIpSuccessResponse>());
 ```
+
+
+#### You can specify a default class to parse to, if all different status codes have same structure:
+```c#
+[Rest(ResponseType = typeof(DefaultResponse))]
+```
+
+#### A data format can be specified, too:
+```c#
+[Rest(RequestFormat = DataFormat.xml)]
+```
