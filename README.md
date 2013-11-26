@@ -1,7 +1,7 @@
 # Restcoration
 
 A wrapper for RestSharp to provide more domain-oriented design for fetching restful data.
-
+NuGet package: https://www.nuget.org/packages/Restcoration/
 
 # Usage
 
@@ -49,3 +49,9 @@ Assert.That(response, Is.TypeOf<HttpBinIpSuccessResponse>());
 ```c#
 [Rest(RequestFormat = DataFormat.xml)]
 ```
+
+#### Use it together with a Blueprint POCO generator
+I have another project here which is capable of parsing Blueprint API format and converting it into POCOs suitable for use with this library.
+
+Check it out: https://github.com/Grinderofl/BluePOCO
+The ApiTransformer from that project, to convert Api into usable ApiObjects, is also available on NuGet: https://www.nuget.org/packages/BlueprintApiTransformer/
