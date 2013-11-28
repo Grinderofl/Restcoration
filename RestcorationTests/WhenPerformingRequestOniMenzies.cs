@@ -25,6 +25,85 @@ namespace RestcorationTests
                         Password = "password"
                     }));
         }
+
+        [Test]
+        public void GettingValuesShouldSucceed()
+        {
+            var client = new RestClientFactory("http://imenzies.apiary.io/");
+            var response = client.Get<CustomerCustomeridRange200>(new CustomerCustomeridRangeRequest(), parameters: new Dictionary<string, object>() { { "customerid", 0 } });
+            Assert.That(response.Range.TitleCount, Is.GreaterThan(0));
+        }
+    }
+
+    [Rest(Resource = "/customer/{customerid}/range/", Method = Method.GET, OK = typeof(CustomerCustomeridRange200))]
+    public class CustomerCustomeridRangeRequest { }
+    public class CustomerCustomeridRange200
+    {
+        public class Issue
+        {
+
+            [JsonProperty("IssueNo")]
+            public string IssueNo { get; set; }
+
+            [JsonProperty("CopyNo")]
+            public string CopyNo { get; set; }
+
+            [JsonProperty("PublicationDate")]
+            public DateTime PublicationDate { get; set; }
+
+            [JsonProperty("PackStatus")]
+            public string PackStatus { get; set; }
+
+            [JsonProperty("DemandQty")]
+            public int DemandQty { get; set; }
+
+            [JsonProperty("ExtrasOrderable")]
+            public bool ExtrasOrderable { get; set; }
+        }
+
+        public class Variant
+        {
+
+            [JsonProperty("VariantType")]
+            public string VariantType { get; set; }
+
+            [JsonProperty("StdOrdQty")]
+            public int StdOrdQty { get; set; }
+
+            [JsonProperty("issues")]
+            public IList<Issue> Issues { get; set; }
+        }
+
+        public class Title
+        {
+
+            [JsonProperty("TitleNo")]
+            public string TitleNo { get; set; }
+
+            [JsonProperty("Mandatory")]
+            public bool Mandatory { get; set; }
+
+            [JsonProperty("variants")]
+            public IList<Variant> Variants { get; set; }
+        }
+
+        public class Range2
+        {
+
+            [JsonProperty("titles")]
+            public IList<Title> Titles { get; set; }
+
+            [JsonProperty("titleCount")]
+            public int TitleCount { get; set; }
+        }
+
+
+        [JsonProperty("range")]
+        public Range2 Range { get; set; }
+
+        [JsonProperty("messages")]
+        public IList<object> Messages { get; set; }
+
     }
 
     [Rest(Resource = "/users/login", Method = Method.POST, OK = typeof(UsersLogin200), NotFound = typeof(UsersLogin404), Conflict = typeof(UsersLogin409))]

@@ -30,8 +30,9 @@ namespace Restcoration
         /// <param name="cookies">Cookies for request</param>
         /// <param name="parameters">Parameters for request</param>
         /// <param name="headers">Headers for request</param>
+        /// /// <param name="urlSegments">URL Segments to replace</param>
         /// <returns>Response data, InvalidCastException or ArgumentException</returns>
-        T Get<T, T2>(T2 requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null) where T : new();
+        T Get<T>(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null, Dictionary<string, string> urlSegments = null) where T : new();
 
         /// <summary>
         /// Attempts to request data from resource, boxing it as object.
@@ -41,7 +42,8 @@ namespace Restcoration
         /// <param name="cookies">Extra cookies for request</param>
         /// <param name="parameters">Parameters for request</param>
         /// <param name="headers">Headers for request</param>
+        /// <param name="urlSegments">URL Segments to replace</param>
         /// <returns>Response data, MissingFieldException or ArgumentException</returns>
-        object Get<T>(T requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null) where T : new();
+        object Get(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null, Dictionary<string, string> urlSegments = null);
     }
 }

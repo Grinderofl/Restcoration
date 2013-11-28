@@ -22,7 +22,7 @@ namespace RestcorationTests
         public void AttributeWithSpecifiedDefaultTypeShouldReturnNonEmptyValue()
         {
             var factory = new RestClientFactory("http://httpbin.org");
-            var c = factory.Get<TestSuccessResponse, TestRequestWithSpecifiedDefaultType>(new TestRequestWithSpecifiedDefaultType());
+            var c = factory.Get<TestSuccessResponse>(new TestRequestWithSpecifiedDefaultType());
             Assert.That(c.Origin, Is.Not.Empty);
         }
 
@@ -30,7 +30,7 @@ namespace RestcorationTests
         public void AttributeWithSpecifiedOkTypeShouldReturnNonEmptyValue()
         {
             var factory = new RestClientFactory("http://httpbin.org");
-            var c = factory.Get<TestSuccessResponse, TestRequestWithSpecifiedOKType>(new TestRequestWithSpecifiedOKType());
+            var c = factory.Get<TestSuccessResponse>(new TestRequestWithSpecifiedOKType());
             Assert.That(c.Origin, Is.Not.Empty);
         }
 

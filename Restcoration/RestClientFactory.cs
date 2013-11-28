@@ -85,21 +85,25 @@ namespace Restcoration
         /// <param name="cookies">Cookies for request</param>
         /// <param name="parameters">Parameters for request</param>
         /// <param name="headers">Headers for request</param>
+        /// <param name="urlSegments">URL Segments to replace</param>
         /// <returns>Response data, InvalidCastException or ArgumentException</returns>
-        public T Get<T, T2>(T2 requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null) where T : new()
+        public T Get<T>(object requestData, Dictionary<string, string> cookies = null,
+            Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+            Dictionary<string, string> urlSegments = null) where T : new()
         {
-            var attribute = GetRestAttribute<T2>();
+            var attribute = GetRestAttribute(requestData);
             if (attribute != null)
             {
-                var response = GetResponse(attribute, requestData, cookies, parameters, headers);
+                var response = GetResponse(attribute, requestData, cookies, parameters, headers, urlSegments);
                 var value = GetPropertyValue(attribute, response.StatusCode);
-                if(value != null)
+                if (value != null)
                     return JsonConvert.DeserializeObject<T>(response.Content);
-                if (attribute.ResponseType == typeof(T))
+                if (attribute.ResponseType == typeof (T))
                     return JsonConvert.DeserializeObject<T>(response.Content);
-                throw new InvalidCastException("Requested type is not compatible with returning type. Use object Get<T>(T requestData); instead.");
+                throw new InvalidCastException(
+                    "Requested type is not compatible with returning type. Use object Get<T>(T requestData); instead.");
             }
-            
+
             throw new ArgumentException("No attributes on class.");
         }
 
@@ -111,13 +115,16 @@ namespace Restcoration
         /// <param name="cookies">Extra cookies for request</param>
         /// <param name="parameters">Parameters for request</param>
         /// <param name="headers">Headers for request</param>
+        /// <param name="urlSegments">URL Segments to replace</param>
         /// <returns>Response data, MissingFieldException or ArgumentException</returns>
-        public object Get<T>(T requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null) where T : new()
+        public object Get(object requestData, Dictionary<string, string> cookies = null,
+            Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+            Dictionary<string, string> urlSegments = null)
         {
-            var attribute = GetRestAttribute<T>();
+            var attribute = GetRestAttribute(requestData);
             if (attribute != null)
             {
-                var response = GetResponse(attribute, requestData, cookies, parameters, headers);
+                var response = GetResponse(attribute, requestData, cookies, parameters, headers, urlSegments);
                 var value = GetPropertyValue(attribute, response.StatusCode);
                 if (value != null)
                     return JsonConvert.DeserializeObject(response.Content, value);
@@ -130,8 +137,8 @@ namespace Restcoration
             throw new ArgumentException("No attributes on class.");
         }
 
-        private IRestResponse GetResponse<T>(RestAttribute attribute, T requestData, Dictionary<string, string> cookies,
-            Dictionary<string, object> parameters, Dictionary<string, string> headers)
+        private IRestResponse GetResponse(RestAttribute attribute, object requestData, Dictionary<string, string> cookies,
+            Dictionary<string, object> parameters, Dictionary<string, string> headers, Dictionary<string, string> urlSegments)
         {
             var request = new RestRequest(attribute.Resource, attribute.Method);
             request.JsonSerializer = new JsonSerializer();
@@ -145,12 +152,15 @@ namespace Restcoration
             if (cookies != null)
                 foreach (var cookie in cookies)
                     request.AddCookie(cookie.Key, cookie.Value);
-            if (cookies != null)
+            if (parameters != null)
                 foreach (var param in parameters)
                     request.AddParameter(param.Key, param.Value);
             if (headers != null)
                 foreach (var header in headers)
                     request.AddHeader(header.Key, header.Value);
+            if(urlSegments != null)
+                foreach (var segment in urlSegments)
+                    request.AddUrlSegment(segment.Key, segment.Value);
 
             var response = _client.Execute(request);
             _client.BaseUrl = tempBaseUrl;
@@ -162,6 +172,10 @@ namespace Restcoration
             return Enum.GetValues(typeof (HttpStatusCode)).Cast<object>().ToDictionary(value => (HttpStatusCode) value, value => attribute.GetType().GetProperty(value.ToString()).GetValue(attribute, null).GetType());
         }
 
+        private static RestAttribute GetRestAttribute(object obj)
+        {
+            return obj.GetType().GetCustomAttributes(typeof (RestAttribute), true).FirstOrDefault() as RestAttribute;
+        }
         private static RestAttribute GetRestAttribute<T>()
         {
             return typeof (T).GetCustomAttributes(typeof (RestAttribute), true).FirstOrDefault() as RestAttribute;
