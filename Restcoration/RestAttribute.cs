@@ -11,6 +11,10 @@ namespace Restcoration
     public class RestAttribute : Attribute
     {
         /// <summary>
+        /// Overrides default request URL
+        /// </summary>
+        public string BaseUrl { get; set; }
+        /// <summary>
         /// Request method.
         /// </summary>
         public Method Method { get; set; }

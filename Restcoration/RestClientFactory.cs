@@ -12,6 +12,13 @@ namespace Restcoration
     public class RestClientFactory : IRestClientFactory
     {
         private IRestClient _client;
+
+        public RestClientFactory()
+        {
+            _client = new RestClient();
+            RequestFormat = DataFormat.Json;
+        }
+
         public RestClientFactory(string baseUrl)
         {
             _client = new RestClient();
@@ -131,6 +138,10 @@ namespace Restcoration
             request.RequestFormat = RequestFormat;
             request.RootElement = RootElement;
             request.AddBody(requestData);
+            var tempBaseUrl = _client.BaseUrl;
+            if (!string.IsNullOrWhiteSpace(attribute.BaseUrl))
+                _client.BaseUrl = BaseUrl;
+            
             if (cookies != null)
                 foreach (var cookie in cookies)
                     request.AddCookie(cookie.Key, cookie.Value);
@@ -142,6 +153,7 @@ namespace Restcoration
                     request.AddHeader(header.Key, header.Value);
 
             var response = _client.Execute(request);
+            _client.BaseUrl = tempBaseUrl;
             return response;
         }
 
