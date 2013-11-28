@@ -101,10 +101,10 @@ namespace Restcoration
                 if (attribute.ResponseType == typeof (T))
                     return JsonConvert.DeserializeObject<T>(response.Content);
                 throw new InvalidCastException(
-                    "Requested type is not compatible with returning type. Use object Get<T>(T requestData); instead.");
+                    "Requested type is not compatible with returning type. Use object Get(object requestData); instead.");
             }
 
-            throw new ArgumentException("No attributes on class.");
+            throw new ArgumentNullException("requestData","No attributes on requestData class.");
         }
 
         /// <summary>
