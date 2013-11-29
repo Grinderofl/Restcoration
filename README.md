@@ -51,6 +51,7 @@ Assert.That(response, Is.TypeOf<HttpBinIpSuccessResponse>());
 ```
 
 ### Strongly typed URL attributes are also supported
+Just plug them in as JsonProperty attribute
 ```c#
 [Rest(Method = Method.GET, Resource = "/api/{parameter1}/{parameterid}")]
 public class MyRequestClass()
