@@ -80,7 +80,6 @@ namespace Restcoration
         /// Attempts to request data from resource.
         /// </summary>
         /// <typeparam name="T">Expected response type</typeparam>
-        /// <typeparam name="T2">Request data type</typeparam>
         /// <param name="requestData">Request data</param>
         /// <param name="cookies">Cookies for request</param>
         /// <param name="parameters">Parameters for request</param>
@@ -110,7 +109,6 @@ namespace Restcoration
         /// <summary>
         /// Attempts to request data from resource, boxing it as object.
         /// </summary>
-        /// <typeparam name="T">Request data type</typeparam>
         /// <param name="requestData">Request data</param>
         /// <param name="cookies">Extra cookies for request</param>
         /// <param name="parameters">Parameters for request</param>
@@ -140,15 +138,21 @@ namespace Restcoration
         private IRestResponse GetResponse(RestAttribute attribute, object requestData, Dictionary<string, string> cookies,
             Dictionary<string, object> parameters, Dictionary<string, string> headers, Dictionary<string, string> urlSegments)
         {
-            var request = new RestRequest(attribute.Resource, attribute.Method);
-            request.JsonSerializer = new JsonSerializer();
-            request.RequestFormat = RequestFormat;
-            request.RootElement = RootElement;
+            var request = new RestRequest(attribute.Resource, attribute.Method)
+            {
+                JsonSerializer = new JsonSerializer(),
+                RequestFormat = RequestFormat,
+                RootElement = RootElement
+            };
             request.AddBody(requestData);
             var tempBaseUrl = _client.BaseUrl;
             if (!string.IsNullOrWhiteSpace(attribute.BaseUrl))
                 _client.BaseUrl = BaseUrl;
-            
+
+            var values = GetJsonPropertyValues(requestData);
+            foreach (var value in values)
+                request.AddUrlSegment(value.Key, value.Value);
+
             if (cookies != null)
                 foreach (var cookie in cookies)
                     request.AddCookie(cookie.Key, cookie.Value);
@@ -176,6 +180,32 @@ namespace Restcoration
         {
             return obj.GetType().GetCustomAttributes(typeof (RestAttribute), true).FirstOrDefault() as RestAttribute;
         }
+
+        private static T GetAttribute<T>(object obj) where T : class
+        {
+            return obj.GetType().GetCustomAttributes(typeof (T), true).FirstOrDefault() as T;
+        }
+
+        private static Dictionary<string, string> GetJsonPropertyValues(object requestData)
+        {
+            var result = new Dictionary<string, string>();
+            var properties =
+                requestData.GetType()
+                    .GetProperties()
+                    .Where(x => x.CustomAttributes.Any(y => y.AttributeType == typeof(JsonPropertyAttribute)));
+            foreach (var prop in properties)
+            {
+                var attribute = prop.GetCustomAttributes(typeof (JsonPropertyAttribute), true).First();
+
+                var key = attribute.GetType().GetProperty("PropertyName").GetValue(attribute, null) as string;
+                var value = requestData.GetType().GetProperty(prop.Name).GetValue(requestData, null) as string;
+                if(key == null) throw new NullReferenceException("Unable to find attribute name. This should never happen - report it to Microsoft.");
+                result.Add(key, value);
+            }
+
+            return result;
+        }
+
         private static RestAttribute GetRestAttribute<T>()
         {
             return typeof (T).GetCustomAttributes(typeof (RestAttribute), true).FirstOrDefault() as RestAttribute;

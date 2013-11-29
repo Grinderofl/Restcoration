@@ -30,13 +30,35 @@ namespace RestcorationTests
         public void GettingValuesShouldSucceed()
         {
             var client = new RestClientFactory("http://imenzies.apiary.io/");
-            var response = client.Get<CustomerCustomeridRange200>(new CustomerCustomeridRangeRequest(), parameters: new Dictionary<string, object>() { { "customerid", 0 } });
+            var response = client.Get<CustomerCustomeridRange200>(new CustomerCustomeridRangeRequest(), urlSegments: new Dictionary<string, string>() { { "customerid", "0" } });
             Assert.That(response.Range.TitleCount, Is.GreaterThan(0));
         }
+
+        [Test]
+        public void GettingValuesWithPropertyInjectedUrlSegmentsShouldSucceed()
+        {
+            var client = new RestClientFactory("http://imenzies.apiary.io");
+            var response = client.Get<CustomerCustomeridRange200>(new CustomerCustomeridRangeRequest("10"));
+            Assert.That(response.Range.TitleCount, Is.GreaterThan(0));
+        }
+
     }
 
-    [Rest(Resource = "/customer/{customerid}/range/", Method = Method.GET, OK = typeof(CustomerCustomeridRange200))]
-    public class CustomerCustomeridRangeRequest { }
+    [Rest(Resource = "/customer/{customerid}/range/", Method = Method.GET, OK = typeof (CustomerCustomeridRange200))]
+    public class CustomerCustomeridRangeRequest
+    {
+        [JsonProperty("customerid")]
+        public string CustomerId { get; set; }
+
+        public CustomerCustomeridRangeRequest()
+        {
+            
+        }
+        public CustomerCustomeridRangeRequest(string customerid)
+        {
+            CustomerId = customerid;
+        }
+    }
     public class CustomerCustomeridRange200
     {
         public class Issue
