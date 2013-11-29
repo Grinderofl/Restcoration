@@ -32,7 +32,7 @@ public class HttpBinIpRequest
 ### Step 4: Use the factory to fetch the object!
 ```c#
 var factory = new RestClientFactory("http://httpbin.org/");
-var response = factory.Get<HttpBinIpSuccessResponse, HttpBinIpRequest>(new HttpBinIpRequest());
+var response = factory.Get<HttpBinIpSuccessResponse>(new HttpBinIpRequest());
 
 // Alternative: Use an anonymous object:
 var response = factory.Get(new HttpBinIpRequest());
@@ -48,6 +48,36 @@ Assert.That(response, Is.TypeOf<HttpBinIpSuccessResponse>());
 #### A data format can be specified, too:
 ```c#
 [Rest(RequestFormat = DataFormat.xml)]
+```
+
+### Strongly typed URL attributes are also supported
+```c#
+[Rest(Method = Method.GET, Resource = "/api/{parameter1}/{parameterid}")]
+public class MyRequestClass()
+{
+  public MyRequestClass()
+  {
+  }
+  
+  public MyRequestClass(string param1, string paramId)
+  {
+    Param1 = param1;
+    ParamId = paramId;
+  }
+  
+  [JsonProperty("parameter1")]
+  public string Param1 { get; set; }
+  
+  [JsonProperty("parameterid")]
+  public string ParamId { get; set; }
+}
+
+var request = factory.Get(new MyRequestClass("param1", "id"));
+```
+
+### Alternatively you can use parameters in the get
+```c#
+var request = factory.Get(new MyRequestClass(), urlSegments:new Dictionary<string, string>(){ new { "parameter1", "param1"}, new { "parameterid", "id"}} );
 ```
 
 #### Use it together with a Blueprint POCO generator
