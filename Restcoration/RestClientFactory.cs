@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Policy;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Extensions;
@@ -11,19 +13,22 @@ namespace Restcoration
 {
     public class RestClientFactory : IRestClientFactory
     {
-        private IRestClient _client;
+        private readonly IRestClient _client;
+        private IList<Task> _tasks;
 
         public RestClientFactory()
         {
             _client = new RestClient();
             RequestFormat = DataFormat.Json;
+            _tasks = new List<Task>();
         }
 
-        public RestClientFactory(string baseUrl)
+        public RestClientFactory(string baseUrl) 
         {
             _client = new RestClient();
             RequestFormat = DataFormat.Json;
             BaseUrl = baseUrl;
+            _tasks = new List<Task>();
         }
 
         public IAuthenticator Authenticator
@@ -133,6 +138,44 @@ namespace Restcoration
             }
 
             throw new ArgumentException("No attributes on class.");
+        }
+
+        public void GetAsyncWithAction<T>(object requestData, Action<T> action, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+            Dictionary<string, string> urlSegments = null) where T : new()
+        {
+            _tasks.Add(Task.Factory.StartNew(() =>
+            {
+                var data = Get<T>(requestData, cookies, parameters, headers, urlSegments);
+                action(data);
+            }));
+        }
+
+        public void GetAsyncWithAction(object requestData, Action<object> action, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null,
+            Dictionary<string, string> headers = null, Dictionary<string, string> urlSegments = null)
+        {
+            _tasks.Add(Task.Factory.StartNew(() =>
+            {
+                var data = Get(requestData, cookies, parameters, headers, urlSegments);
+                action(data);
+            }));
+        }
+
+        public async Task<T> GetAsync<T>(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+            Dictionary<string, string> urlSegments = null) where T : new()
+        {
+            return await Task<T>.Factory.StartNew(() => Get<T>(requestData, cookies, parameters, headers, urlSegments));
+        }
+
+        public async Task<object> GetAsync(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+            Dictionary<string, string> urlSegments = null)
+        {
+            return
+                await Task<object>.Factory.StartNew(() => Get(requestData, cookies, parameters, headers, urlSegments));
+        }
+        
+        public void WaitForAsync()
+        {
+            Task.WaitAll(_tasks.ToArray());
         }
 
         private IRestResponse GetResponse(RestAttribute attribute, object requestData, Dictionary<string, string> cookies,
