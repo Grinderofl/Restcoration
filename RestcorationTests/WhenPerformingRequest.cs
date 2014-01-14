@@ -42,6 +42,20 @@ namespace RestcorationTests
             Assert.That(c, Is.TypeOf<TestSuccessResponse>());
         }
 
+        [Test]
+        public void AsyncRequestShouldPerformSuccessfully()
+        {
+            var factory = new RestClientFactory("http://httpbin.org");
+            string origin = null;
+            factory.GetAsyncWithAction<TestSuccessResponse>(new TestRequestWithSpecifiedOKType(), response =>
+            {
+                origin = response.Origin;
+            });
+            factory.WaitForAsync();
+            Assert.That(origin, Is.Not.Null);
+            Assert.That(origin, Is.Not.Empty);
+        }
+
         public class TestSuccessResponse
         {
             public string Origin { get; set; }
