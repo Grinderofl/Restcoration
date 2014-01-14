@@ -81,6 +81,12 @@ var request = factory.Get(new MyRequestClass("param1", "id"));
 var request = factory.Get(new MyRequestClass(), urlSegments:new Dictionary<string, string>(){ new { "parameter1", "param1"}, new { "parameterid", "id"}} );
 ```
 
+### Check out the 100% increased async content!
+```c#
+factory.GetAsyncWithAction<ResponseClass>(new RequestClass(), action => DoSomethingWithRequest);
+var response = await factory.GetAsync<ResponseClass>(new RequestClass());
+```
+
 #### Use it together with a Blueprint POCO generator
 I have another project here which is capable of parsing Blueprint API format and converting it into POCOs suitable for use with this library.
 
