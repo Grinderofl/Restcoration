@@ -105,7 +105,7 @@ namespace Restcoration
                 if (attribute.ResponseType == typeof (T))
                     return JsonConvert.DeserializeObject<T>(response.Content);
                 throw new InvalidCastException(
-                    "Requested type is not compatible with returning type. Use object Get(object requestData); instead.");
+                    string.Format("Requested type is not compatible with returning type. Use object Get(object requestData); instead. Received content: {0}, with content type: {1}, status: {2}", response.Content, response.ContentType, response.StatusCode));
             }
 
             throw new ArgumentNullException("requestData","No attributes on requestData class.");
@@ -134,7 +134,9 @@ namespace Restcoration
                 if (attribute.ResponseType != null)
                     return JsonConvert.DeserializeObject(response.Content, attribute.ResponseType);
                 throw new MissingFieldException(
-                    "Missing default response type and no matching set single converters found.");
+                    string.Format(
+                        "Missing default response type and no matching set single converters found. Data received: {0}, content type: {1}, status code: {2}",
+                        response.Content, response.ContentType, response.StatusCode));
             }
 
             throw new ArgumentException("No attributes on class.");
