@@ -79,7 +79,6 @@ namespace Restcoration
         public ICredentials Credentials { get; set; }
         public object UserState { get; set; }
         public int Timeout { get; set; }
-        public int Attempts { get; set; }
 
         /// <summary>
         /// Attempts to request data from resource.
@@ -187,8 +186,20 @@ namespace Restcoration
             {
                 JsonSerializer = new JsonSerializer(),
                 RequestFormat = RequestFormat,
-                RootElement = RootElement
+                RootElement = RootElement,
+                Timeout = Timeout
             };
+
+            if (Credentials != null)
+                request.Credentials = Credentials;
+
+            if (UserState != null)
+                request.UserState = UserState;
+            
+            
+            if (DateFormat != null)
+                request.DateFormat = DateFormat;
+
             request.AddBody(requestData);
             var tempBaseUrl = _client.BaseUrl;
             if (!string.IsNullOrWhiteSpace(attribute.BaseUrl))

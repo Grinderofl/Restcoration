@@ -21,7 +21,6 @@ namespace Restcoration
         ICredentials Credentials { get; set; }
         object UserState { get; set; }
         int Timeout { get; set; }
-        int Attempts { get; set; }
 
         /// <summary>
         /// Attempts to request data from resource.
