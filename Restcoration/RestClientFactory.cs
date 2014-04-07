@@ -80,6 +80,29 @@ namespace Restcoration
         public object UserState { get; set; }
         public int Timeout { get; set; }
 
+        public class RequestStartEventArgs : EventArgs
+        {
+            public IRestRequest Request { get; set; }
+        }
+
+        public class RequestEndEventArgs : EventArgs
+        {
+            public IRestResponse Response { get; set; }
+        }
+
+        public delegate void RequestStart(object sender, RequestStartEventArgs args);
+        public delegate void RequestEnd(object sender, RequestEndEventArgs args);
+
+        /// <summary>
+        /// Occurs when request is fired towards the server
+        /// </summary>
+        public event RequestStart OnRequestStart;
+
+        /// <summary>
+        /// Occurs when response comes back from the server
+        /// </summary>
+        public event RequestEnd OnRequestEnd;
+
         /// <summary>
         /// Attempts to request data from resource.
         /// </summary>
@@ -222,7 +245,13 @@ namespace Restcoration
                 foreach (var segment in urlSegments)
                     request.AddUrlSegment(segment.Key, segment.Value);
 
+            if (OnRequestStart != null)
+                OnRequestStart(this, new RequestStartEventArgs() {Request = request});
+
             var response = _client.Execute(request);
+
+            if (OnRequestEnd != null)
+                OnRequestEnd(this, new RequestEndEventArgs() {Response = response});
             _client.BaseUrl = tempBaseUrl;
             return response;
         }
