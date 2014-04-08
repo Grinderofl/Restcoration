@@ -79,20 +79,7 @@ namespace Restcoration
         public ICredentials Credentials { get; set; }
         public object UserState { get; set; }
         public int Timeout { get; set; }
-
-        public class RequestStartEventArgs : EventArgs
-        {
-            public IRestRequest Request { get; set; }
-        }
-
-        public class RequestEndEventArgs : EventArgs
-        {
-            public IRestResponse Response { get; set; }
-        }
-
-        public delegate void RequestStart(object sender, RequestStartEventArgs args);
-        public delegate void RequestEnd(object sender, RequestEndEventArgs args);
-
+        
         /// <summary>
         /// Occurs when request is fired towards the server
         /// </summary>

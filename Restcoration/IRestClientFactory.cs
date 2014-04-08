@@ -106,5 +106,15 @@ namespace Restcoration
         /// Waits for all asynchronous requests that have an action, to complete.
         /// </summary>
         void WaitForAsync();
+
+        /// <summary>
+        /// Occurs when request is fired towards the server
+        /// </summary>
+        event RequestStart OnRequestStart;
+
+        /// <summary>
+        /// Occurs when response comes back from the server
+        /// </summary>
+        event RequestEnd OnRequestEnd;
     }
 }

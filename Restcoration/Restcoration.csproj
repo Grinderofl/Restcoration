@@ -51,6 +51,10 @@
   <ItemGroup>
     <Compile Include="IRestClientFactory.cs" />
     <Compile Include="JsonSerializer.cs" />
+    <Compile Include="RequestEnd.cs" />
+    <Compile Include="RequestEndEventArgs.cs" />
+    <Compile Include="RequestStart.cs" />
+    <Compile Include="RequestStartEventArgs.cs" />
     <Compile Include="RestAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestClientFactory.cs" />
