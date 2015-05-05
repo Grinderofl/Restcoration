@@ -26,6 +26,7 @@ namespace Restcoration
             _serializer = new Newtonsoft.Json.JsonSerializer
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
+                ContractResolver = new RestcorationContractResolver(),
                 NullValueHandling = NullValueHandling.Include,
                 DefaultValueHandling = DefaultValueHandling.Include
             };

@@ -9,18 +9,12 @@ namespace Restcoration
 {
     public interface IRestClientFactory
     {
-        IAuthenticator Authenticator { get; set; }
-        X509CertificateCollection ClientCertificates { get; set; }
-        IList<Parameter> DefaultParameters { get; }
-        string UserAgent { get; set; }
-        bool UseSynchronizationContext { get; set; }
-        string BaseUrl { get; set; }
+        IRestClient Client { get; }
         DataFormat RequestFormat { get; set; }
         string RootElement { get; set; }
         string DateFormat { get; set; }
         ICredentials Credentials { get; set; }
         object UserState { get; set; }
-        int Timeout { get; set; }
 
         /// <summary>
         /// Attempts to request data from resource.

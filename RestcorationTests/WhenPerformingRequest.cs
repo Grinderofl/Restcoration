@@ -60,5 +60,31 @@ namespace RestcorationTests
         {
             public string Origin { get; set; }
         }
+
+        [Test]
+        public void JsonPlaceHolderTest()
+        {
+            var factory = new RestClientFactory("http://jsonplaceholder.typicode.com");
+            var c = factory.Get(new JsonPlaceHolderRequestPosts() {PostId = "1"});
+            var response = c as JsonPlaceHolderResponsePosts;
+
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Id, Is.EqualTo(1));
+        }
+    }
+
+    [Rest(ResponseType = typeof(JsonPlaceHolderResponsePosts), Resource = "posts/{postId}", Method = Method.GET)]
+    public class JsonPlaceHolderRequestPosts
+    {
+        [UrlSegment("postId")]
+        public string PostId { get; set; }
+    }
+
+    public class JsonPlaceHolderResponsePosts
+    {
+        public int UserId { get; set; }
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Body { get; set; }
     }
 }

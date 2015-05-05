@@ -7,92 +7,150 @@ using RestSharp;
 
 namespace Restcoration
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RestAttribute : Attribute
     {
+        
         /// <summary>
         /// Overrides default request URL
         /// </summary>
+        /// <example>
+        /// To use http://sampleuri.org as base URL
+        /// <code>
+        /// [Rest(BaseUrl = "http://sampleuri.org")]
+        /// </code>
+        /// </example>
         public string BaseUrl { get; set; }
+
         /// <summary>
-        /// Request method.
+        /// Method to use when making the request
         /// </summary>
+        /// <example>
+        /// To use POST request method
+        /// <code>
+        /// [Rest(Method = Method.POST)]
+        /// </code>
+        /// </example>
         public Method Method { get; set; }
+
         /// <summary>
-        /// If no matching status code responses are specified, use this as default.
+        /// Default expected response type
         /// </summary>
+        /// <example>
+        /// To set default response type to DefaultResponseType
+        /// <code>
+        /// [Rest(ResponseType = typeof(DefaultResponseType))]
+        /// </code>
+        /// </example>
         public Type ResponseType { get; set; }
+
         /// <summary>
-        /// Resource to request.
+        /// Resource to request
         /// </summary>
+        /// <example>
+        /// To set resource for /users/:userId
+        /// <code>
+        /// [Rest(Resource="/users/{userId}")]
+        /// </code>
+        /// </example>
         public string Resource { get; set; }
+
         /// <summary>
-        /// Format to request resource in.
+        /// Format to request resource in
         /// </summary>
+        /// <example>
+        /// To use JSON as request format
+        /// <code>
+        /// [Rest(RequestFormat = DataFormat.JSON)]
+        /// </code>
+        /// </example>
         public DataFormat RequestFormat { get; set; }
+
+        /// <summary>
+        /// Sets the timeout for individual request, in milliseconds
+        /// </summary>
+        /// <example>
+        /// To use 3000 milliseconds for the request
+        /// <code>
+        /// [Rest(Timeout = 3000)]
+        /// </code>
+        /// </example>
+        public int? Timeout { get; set; }
+
         /// <summary>
         /// Equivalent to HTTP status 100. System.Net.HttpStatusCode.Continue
         /// indicates that the request should be continued.
         /// </summary>
         public Type Continue { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 101. System.Net.HttpStatusCode.SwitchingProtocols
-        //     indicates that the protocol version or protocol is being changed.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 101. System.Net.HttpStatusCode.SwitchingProtocols
+        /// indicates that the protocol version or protocol is being changed.
+        /// </summary>
         public Type SwitchingProtocols { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 200. System.Net.HttpStatusCode.OK indicates that
-        //     the request succeeded and that the requested information is in the response.
-        //     This is the most common status code to receive.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 200. System.Net.HttpStatusCode.OK indicates that
+        /// the request succeeded and that the requested information is in the response.
+        /// This is the most common status code to receive.
+        /// </summary>
         public Type OK { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 201. System.Net.HttpStatusCode.Created indicates
-        //     that the request resulted in a new resource created before the response was
-        //     sent.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 201. System.Net.HttpStatusCode.Created indicates
+        /// that the request resulted in a new resource created before the response was
+        /// sent.
+        /// </summary>
         public Type Created { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 202. System.Net.HttpStatusCode.Accepted indicates
-        //     that the request has been accepted for further processing.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 202. System.Net.HttpStatusCode.Accepted indicates
+        /// that the request has been accepted for further processing.
+        /// </summary>
         public Type Accepted { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 203. System.Net.HttpStatusCode.NonAuthoritativeInformation
-        //     indicates that the returned metainformation is from a cached copy instead
-        //     of the origin server and therefore may be incorrect.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 203. System.Net.HttpStatusCode.NonAuthoritativeInformation
+        /// indicates that the returned metainformation is from a cached copy instead
+        /// of the origin server and therefore may be incorrect.
+        /// </summary>
         public Type NonAuthoritativeInformation { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 204. System.Net.HttpStatusCode.NoContent indicates
-        //     that the request has been successfully processed and that the response is
-        //     intentionally blank.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 204. System.Net.HttpStatusCode.NoContent indicates
+        /// that the request has been successfully processed and that the response is
+        /// intentionally blank.
+        /// </summary>
         public Type NoContent { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 205. System.Net.HttpStatusCode.ResetContent indicates
-        //     that the client should reset (not reload) the current resource.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 205. System.Net.HttpStatusCode.ResetContent indicates
+        /// that the client should reset (not reload) the current resource.
+        /// </summary>
         public Type ResetContent { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 206. System.Net.HttpStatusCode.PartialContent indicates
-        //     that the response is a partial response as requested by a GET request that
-        //     includes a byte range.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 206. System.Net.HttpStatusCode.PartialContent indicates
+        /// that the response is a partial response as requested by a GET request that
+        /// includes a byte range.
+        /// </summary>
         public Type PartialContent { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 300. System.Net.HttpStatusCode.MultipleChoices
-        //     indicates that the requested information has multiple representations. The
-        //     default action is to treat this status as a redirect and follow the contents
-        //     of the Location header associated with this response.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 300. System.Net.HttpStatusCode.MultipleChoices
+        /// indicates that the requested information has multiple representations. The
+        /// default action is to treat this status as a redirect and follow the contents
+        /// of the Location header associated with this response.
+        /// </summary>
+        /// 
         public Type MultipleChoices { get; set; }
-        //
-        // Summary:
-        //     Equivalent to HTTP status 300. System.Net.HttpStatusCode.Ambiguous indicates
-        //     that the requested information has multiple representations. The default
-        //     action is to treat this status as a redirect and follow the contents of the
-        //     Location header associated with this response.
+        
+        /// <summary>
+        /// Equivalent to HTTP status 300. System.Net.HttpStatusCode.Ambiguous indicates
+        /// that the requested information has multiple representations. The default
+        /// action is to treat this status as a redirect and follow the contents of the
+        /// Location header associated with this response.
+        /// </summary>
         public Type Ambiguous { get; set; }
         //
         // Summary:
@@ -274,6 +332,7 @@ namespace Restcoration
         //     indicates that an expectation given in an Expect header could not be met
         //     by the server.
         public Type ExpectationFailed { get; set; }
+
         //
         public Type UpgradeRequired { get; set; }
         //

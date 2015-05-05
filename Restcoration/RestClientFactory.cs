@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Restcoration.Exceptions;
 using RestSharp;
 using RestSharp.Extensions;
 
@@ -13,73 +14,37 @@ namespace Restcoration
 {
     public class RestClientFactory : IRestClientFactory
     {
-        private readonly IRestClient _client;
-        private IList<Task> _tasks;
+        public virtual IRestClient Client { get; set; }
+        private readonly IList<Task> _tasks;
 
-        public RestClientFactory()
+        public RestClientFactory(IRestClient client, DataFormat requestFormat = DataFormat.Json)
         {
-            _client = new RestClient();
-            RequestFormat = DataFormat.Json;
+            Client = client;
+            RequestFormat = requestFormat;
             _tasks = new List<Task>();
         }
 
-        public RestClientFactory(string baseUrl) 
+        public RestClientFactory(string baseUrl, DataFormat requestFormat = DataFormat.Json) : this (new RestClient(baseUrl), requestFormat)
         {
-            _client = new RestClient();
-            RequestFormat = DataFormat.Json;
-            BaseUrl = baseUrl;
-            _tasks = new List<Task>();
         }
-
-        public IAuthenticator Authenticator
+        
+        public RestClientFactory() : this(new RestClient())
         {
-            get { return _client.Authenticator; }
-            set { _client.Authenticator = value; }
-        }
-
-        public X509CertificateCollection ClientCertificates
-        {
-            get { return _client.ClientCertificates; }
-            set { _client.ClientCertificates = value; }
-        }
-
-        public IList<Parameter> DefaultParameters
-        {
-            get { return _client.DefaultParameters; }
-        }
-
-        public string UserAgent
-        {
-            get { return _client.UserAgent; }
-            set { _client.UserAgent = value; }
-        }
-
-        public bool UseSynchronizationContext
-        {
-            get { return _client.UseSynchronizationContext; }
-            set { _client.UseSynchronizationContext = value; }
-        }
-
-        public string BaseUrl
-        {
-            get { return _client.BaseUrl; }
-            set { _client.BaseUrl = value; }
         }
 
         /// <summary>
         /// Request format
         /// </summary>
-        public DataFormat RequestFormat { get; set; }
+        public virtual DataFormat RequestFormat { get; set; }
 
         /// <summary>
         /// Default root element
         /// </summary>
-        public string RootElement { get; set; }
-        public string DateFormat { get; set; }
-        public ICredentials Credentials { get; set; }
-        public object UserState { get; set; }
-        public int Timeout { get; set; }
-        
+        public virtual string RootElement { get; set; }
+        public virtual string DateFormat { get; set; }
+        public virtual ICredentials Credentials { get; set; }
+        public virtual object UserState { get; set; }
+                
         /// <summary>
         /// Occurs when request is fired towards the server
         /// </summary>
@@ -113,8 +78,9 @@ namespace Restcoration
                     return JsonConvert.DeserializeObject<T>(response.Content);
                 if (attribute.ResponseType == typeof (T))
                     return JsonConvert.DeserializeObject<T>(response.Content);
-                throw new InvalidCastException(
-                    string.Format("Requested type is not compatible with returning type. Use object Get(object requestData); instead. Received content: {0}, with content type: {1}, status: {2}", response.Content, response.ContentType, response.StatusCode));
+                throw new UnexpectedResponseTypeException(
+                    "Unable to find compatible returning type. See ResponseData property in the exception or consider using non-generic Get() instead.", requestData,
+                    response);
             }
 
             throw new ArgumentNullException("requestData","No attributes on requestData class.");
@@ -142,10 +108,9 @@ namespace Restcoration
                     return JsonConvert.DeserializeObject(response.Content, value);
                 if (attribute.ResponseType != null)
                     return JsonConvert.DeserializeObject(response.Content, attribute.ResponseType);
-                throw new MissingFieldException(
-                    string.Format(
-                        "Missing default response type and no matching set single converters found. Data received: {0}, content type: {1}, status code: {2}",
-                        response.Content, response.ContentType, response.StatusCode));
+                throw new UnexpectedResponseTypeException(
+                    "Unable to find compatible returning type. See ResponseData property in the exception.", requestData,
+                    response);
             }
 
             throw new ArgumentException("No attributes on class.");
@@ -197,8 +162,11 @@ namespace Restcoration
                 JsonSerializer = new JsonSerializer(),
                 RequestFormat = RequestFormat,
                 RootElement = RootElement,
-                Timeout = Timeout
+                Timeout = Client.Timeout
             };
+
+            if (attribute.Timeout != null)
+                request.Timeout = attribute.Timeout.Value;
 
             if (Credentials != null)
                 request.Credentials = Credentials;
@@ -206,14 +174,13 @@ namespace Restcoration
             if (UserState != null)
                 request.UserState = UserState;
             
-            
             if (DateFormat != null)
                 request.DateFormat = DateFormat;
 
             request.AddBody(requestData);
-            var tempBaseUrl = _client.BaseUrl;
+            var tempBaseUrl = Client.BaseUrl;
             if (!string.IsNullOrWhiteSpace(attribute.BaseUrl))
-                _client.BaseUrl = BaseUrl;
+                Client.BaseUrl = attribute.BaseUrl;
 
             var values = GetJsonPropertyValues(requestData);
             foreach (var value in values)
@@ -235,11 +202,11 @@ namespace Restcoration
             if (OnRequestStart != null)
                 OnRequestStart(this, new RequestStartEventArgs() {Request = request});
 
-            var response = _client.Execute(request);
+            var response = Client.Execute(request);
 
             if (OnRequestEnd != null)
                 OnRequestEnd(this, new RequestEndEventArgs() {Response = response});
-            _client.BaseUrl = tempBaseUrl;
+            Client.BaseUrl = tempBaseUrl;
             return response;
         }
 
@@ -264,12 +231,12 @@ namespace Restcoration
             var properties =
                 requestData.GetType()
                     .GetProperties()
-                    .Where(x => x.CustomAttributes.Any(y => y.AttributeType == typeof(JsonPropertyAttribute)));
+                    .Where(x => x.CustomAttributes.Any(y => y.AttributeType == typeof(UrlSegmentAttribute)));
             foreach (var prop in properties)
             {
-                var attribute = prop.GetCustomAttributes(typeof (JsonPropertyAttribute), true).First();
+                var attribute = prop.GetCustomAttributes(typeof (UrlSegmentAttribute), true).First();
 
-                var key = attribute.GetType().GetProperty("PropertyName").GetValue(attribute, null) as string;
+                var key = attribute.GetType().GetProperty("Segment").GetValue(attribute, null) as string;
                 var value = requestData.GetType().GetProperty(prop.Name).GetValue(requestData, null) as string;
                 if(key == null) throw new NullReferenceException("Unable to find attribute name. This should never happen - report it to Microsoft.");
                 result.Add(key, value);
