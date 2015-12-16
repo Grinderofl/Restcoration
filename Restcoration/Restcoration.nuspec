@@ -12,7 +12,7 @@
         <description>Restcoration adds attributes that enable classes to be used for easily fetchable rest requests, in a domain-driven fashion.</description>
         <summary>Use Domain Driven Design for Rest-requests.</summary>
         <releaseNotes>
-v 1.8.18
+v 1.8
 * Adds IRestResponse Get(object requestData, ...) to get the raw response
 * Virtualized methods on RestClientFactory to allow easier overriding
 
