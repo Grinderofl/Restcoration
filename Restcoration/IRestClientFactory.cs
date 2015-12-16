@@ -50,6 +50,19 @@ namespace Restcoration
             Dictionary<string, string> urlSegments = null);
 
         /// <summary>
+        /// Attempts to request data from resource, returning the original response.
+        /// </summary>
+        /// <param name="requestData">Request data</param>
+        /// <param name="cookies">Extra cookies for request</param>
+        /// <param name="parameters">Parameters for request</param>
+        /// <param name="headers">Headers for request</param>
+        /// <param name="urlSegments">URL Segments to replace</param>
+        /// <returns>Response data</returns>
+        IRestResponse GetResponse(object requestData, Dictionary<string, string> cookies = null,
+            Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+            Dictionary<string, string> urlSegments = null);
+
+        /// <summary>
         /// Attempts to request data from resource asynchronously and performing an action on it after retrieving
         /// </summary>
         /// <param name="requestData"></param>

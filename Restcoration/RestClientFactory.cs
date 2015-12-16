@@ -100,7 +100,7 @@ namespace Restcoration
         /// <param name="headers">Headers for request</param>
         /// <param name="urlSegments">URL Segments to replace</param>
         /// <returns>Response data, InvalidCastException or ArgumentException</returns>
-        public T Get<T>(object requestData, Dictionary<string, string> cookies = null,
+        public virtual T Get<T>(object requestData, Dictionary<string, string> cookies = null,
             Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
             Dictionary<string, string> urlSegments = null) where T : new()
         {
@@ -129,7 +129,7 @@ namespace Restcoration
         /// <param name="headers">Headers for request</param>
         /// <param name="urlSegments">URL Segments to replace</param>
         /// <returns>Response data, MissingFieldException or ArgumentException</returns>
-        public object Get(object requestData, Dictionary<string, string> cookies = null,
+        public virtual object Get(object requestData, Dictionary<string, string> cookies = null,
             Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
             Dictionary<string, string> urlSegments = null)
         {
@@ -151,7 +151,18 @@ namespace Restcoration
             throw new ArgumentException("No attributes on class.");
         }
 
-        public void GetAsyncWithAction<T>(object requestData, Action<T> action, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+        public virtual IRestResponse GetResponse(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null,
+            Dictionary<string, string> headers = null, Dictionary<string, string> urlSegments = null)
+        {
+            var attribute = GetRestAttribute(requestData);
+            if (attribute != null)
+            {
+                return GetResponse(attribute, requestData, cookies, parameters, headers, urlSegments);
+            }
+            throw new ArgumentException("No attributes on class.");
+        }
+
+        public virtual void GetAsyncWithAction<T>(object requestData, Action<T> action, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
             Dictionary<string, string> urlSegments = null) where T : new()
         {
             _tasks.Add(Task.Factory.StartNew(() =>
@@ -161,7 +172,7 @@ namespace Restcoration
             }));
         }
 
-        public void GetAsyncWithAction(object requestData, Action<object> action, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null,
+        public virtual void GetAsyncWithAction(object requestData, Action<object> action, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null,
             Dictionary<string, string> headers = null, Dictionary<string, string> urlSegments = null)
         {
             _tasks.Add(Task.Factory.StartNew(() =>
@@ -171,20 +182,20 @@ namespace Restcoration
             }));
         }
 
-        public async Task<T> GetAsync<T>(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+        public virtual async Task<T> GetAsync<T>(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
             Dictionary<string, string> urlSegments = null) where T : new()
         {
             return await Task<T>.Factory.StartNew(() => Get<T>(requestData, cookies, parameters, headers, urlSegments));
         }
 
-        public async Task<object> GetAsync(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
+        public virtual async Task<object> GetAsync(object requestData, Dictionary<string, string> cookies = null, Dictionary<string, object> parameters = null, Dictionary<string, string> headers = null,
             Dictionary<string, string> urlSegments = null)
         {
             return
                 await Task<object>.Factory.StartNew(() => Get(requestData, cookies, parameters, headers, urlSegments));
         }
         
-        public void WaitForAsync()
+        public virtual void WaitForAsync()
         {
             Task.WaitAll(_tasks.ToArray());
         }
