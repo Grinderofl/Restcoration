@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Restcoration</id>
+        <version>$version$</version>
+        <title>Restcoration</title>
+        <authors>Nero Sule</authors>
+        <owners>Nero Sule</owners>
+        <licenseUrl>https://raw.github.com/Grinderofl/Restcoration/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/Grinderofl/Restcoration</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Restcoration adds attributes that enable classes to be used for easily fetchable rest requests, in a domain-driven fashion.</description>
+        <summary>Use Domain Driven Design for Rest-requests.</summary>
+        <releaseNotes>
+v 1.8.18
+* Adds IRestResponse Get(object requestData, ...) to get the raw response
+* Virtualized methods on RestClientFactory to allow easier overriding
+
+v 1.7.17
+* Added events OnRequestStart and OnRequestEnd to allow various pre and post-request activities to be performed.
+
+v 1.6.17
+* Fixed some minor bugs.
+
+v 1.6.15
+* Added four async methods
+* Fixed a few XmlDoc comments.
+
+v 1.5.13
+* Added strongly typed url binding with JsonAttribute.
+
+v 1.4.10
+* Added URL Segments parameter to Get
+* Made factory Get method slightly more user-friendly by removing excess generic parameters
+
+v 1.3.6
+* Added an empty constructor for factory
+* Added a BaseUrl attribute for temporary overrides of base URL.
+
+v 1.2.4
+* Fixed errors on returning boxed object
+
+v 1.2.3.0
+* Added missing request type functionality
+
+v 1.1.2.0:
+* Added headers parameter to get
+* Added cookies parameter to get
+* Added parameters parameter to get</releaseNotes>
+        <copyright>Nero Sule 2013</copyright>
+        <language>en-GB</language>
+        <tags>rest json ddd domain attribute decoration</tags>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="5.0.8" />
+            <dependency id="RestSharp" version="104.4.0" />
+        </dependencies>
+    </metadata>
+</package>
